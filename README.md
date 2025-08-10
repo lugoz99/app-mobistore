@@ -40,3 +40,12 @@
    ```
 
    - add .env in .gitignore
+
+5. Install validators
+   2.1 **installation**
+
+   ```
+   npm i class-validator class-transformer
+   ```
+
+   and configure or add global pipes configuration in the main.ts
