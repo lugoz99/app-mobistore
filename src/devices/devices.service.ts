@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,20 +32,27 @@ export class DevicesService {
     }
   }
 
-  findAll() {
-    return `This action returns all devices`;
+  async findAll() {
+    try {
+      return await this.deviceRepository.find({});
+    } catch (error) {
+      this.hadleDbExceptions(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} device`;
+  async findOne(id:string) {
+      const record = await this.deviceRepository.findOneBy({ id });
+      if (!record) throw new NotFoundException('Device not found!')
+      return record;
   }
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {
     return `This action updates a #${id} device`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} device`;
+  async remove(id: string) {
+      let record = await this.findOne(id);
+      await this.deviceRepository.remove(record);
   }
 
   /**

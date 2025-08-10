@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { title } from "process";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
@@ -46,4 +47,14 @@ export class Device {
     // @Column('array')
     // tags:string[]
 
+    @BeforeInsert()
+    checkModelSlugInsert() {
+        if ( !this.modelSlug ) {
+            this.modelSlug = this.modelName
+        }
+        this.modelSlug = this.modelSlug
+            .toLocaleLowerCase()
+            .replaceAll(' ', '_')
+            .replaceAll("'",'')
+    }
 }
