@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -13,13 +14,13 @@ export class DevicesController {
   }
 
   @Get()
-  findAll() {
-    return this.devicesService.findAll();
+  findAll(@Query() paginationDto : PaginationDto) {
+    return this.devicesService.findAll( paginationDto );
   }
 
-  @Get(':id')
-  findOne(@Param('id',ParseUUIDPipe) id: string) {
-    return this.devicesService.findOne(id);
+  @Get(':term')
+  findOne(@Param('term',ParseUUIDPipe) term: string) {
+    return this.devicesService.findOne(term);
   }
 
   @Patch(':id')

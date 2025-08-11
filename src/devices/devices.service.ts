@@ -4,7 +4,8 @@ import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Device } from './entities/device.entity';
-
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { validate as isUUID } from 'uuid'
 @Injectable()
 export class DevicesService {
 
@@ -32,24 +33,47 @@ export class DevicesService {
     }
   }
 
-  async findAll() {
-    try {
-      return await this.deviceRepository.find({});
-    } catch (error) {
-      this.hadleDbExceptions(error);
-    }
+  async findAll(paginationDto: PaginationDto) {
+    
+    const { limit = 10,offset = 0} = paginationDto;
+    return await this.deviceRepository.find({
+      take: limit,
+      skip: offset
+    });
+    
   }
 
-  async findOne(id:string) {
-      const record = await this.deviceRepository.findOneBy({ id });
-      if (!record) throw new NotFoundException('Device not found!')
-      return record;
+  async findOne(term: string): Promise<Device> {
+    let device: Device;
+
+    if (isUUID(term)) {
+      device = await this.deviceRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.deviceRepository.createQueryBuilder('device');
+      device = await queryBuilder
+        .where('UPPER(device.modelName) = :term OR LOWER(device.modelSlug) =:term)', {
+          modelName: term.toUpperCase(),
+          modelSlugo : term.toLowerCase(),
+        }).getOne();
+    }
+
+    if (!device) {
+      throw new NotFoundException(`Device with term '${term}' not found`);
+    }
+
+    return device;
   }
+
+
 
   update(id: number, updateDeviceDto: UpdateDeviceDto) {
     return `This action updates a #${id} device`;
   }
 
+  /**
+   * 
+   * @param id 
+   */
   async remove(id: string) {
       let record = await this.findOne(id);
       await this.deviceRepository.remove(record);

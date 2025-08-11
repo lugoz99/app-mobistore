@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DevicesModule } from './devices/devices.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { DevicesModule } from './devices/devices.module';
       autoLoadEntities: true,
       synchronize:true,
     }),
-    DevicesModule
+    DevicesModule,
+    CommonModule
     
   
   ],
