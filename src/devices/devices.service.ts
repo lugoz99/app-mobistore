@@ -45,22 +45,20 @@ export class DevicesService {
 
   async findOne(term: string): Promise<Device> {
     let device: Device;
-
     if (isUUID(term)) {
       device = await this.deviceRepository.findOneBy({ id: term });
     } else {
       const queryBuilder = this.deviceRepository.createQueryBuilder('device');
       device = await queryBuilder
-        .where('UPPER(device.modelName) = :term OR LOWER(device.modelSlug) =:term)', {
+        .where('UPPER(device.modelName) = :modelName OR LOWER(device.modelSlug) = :modelSlug', {
           modelName: term.toUpperCase(),
-          modelSlugo : term.toLowerCase(),
-        }).getOne();
+          modelSlug: term.toLowerCase(),
+        })
+        .getOne();
     }
-
     if (!device) {
       throw new NotFoundException(`Device with term '${term}' not found`);
     }
-
     return device;
   }
 
