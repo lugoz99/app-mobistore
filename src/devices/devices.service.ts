@@ -64,8 +64,23 @@ export class DevicesService {
 
 
 
-  update(id: number, updateDeviceDto: UpdateDeviceDto) {
-    return `This action updates a #${id} device`;
+  async update(id: string, updateDeviceDto: UpdateDeviceDto) {
+    /**
+     * Find a device by the id, and load the properties 
+     */
+    const device = await this.deviceRepository.preload({
+      id: id,
+      ...updateDeviceDto
+    });
+    if(!device) throw new NotFoundException(`Device with ${id} not found!`)
+    
+    
+    try {
+      await this.deviceRepository.save(device);
+      return device;
+    } catch (error) {
+      this.hadleDbExceptions(error);     
+    }
   }
 
   /**

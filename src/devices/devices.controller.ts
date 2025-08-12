@@ -24,8 +24,10 @@ export class DevicesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
-    return this.devicesService.update(+id, updateDeviceDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateDeviceDto: UpdateDeviceDto) {
+    return this.devicesService.update(id, updateDeviceDto);
   }
 
   @Delete(':id')

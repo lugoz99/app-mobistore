@@ -1,5 +1,5 @@
 import { title } from "process";
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
@@ -44,8 +44,12 @@ export class Device {
     targetMarket: string
     
 
-    // @Column('array')
-    // tags:string[]
+    @Column({
+        type: 'text',
+        array: true,
+        default:[]
+    })
+    tags:string[]
 
     @BeforeInsert()
     checkModelSlugInsert() {
@@ -56,5 +60,14 @@ export class Device {
             .toLocaleLowerCase()
             .replaceAll(' ', '_')
             .replaceAll("'",'')
+    }
+
+
+    @BeforeUpdate()
+    checkSlugUpdate() {
+        this.modelSlug = this.modelSlug
+            .toLocaleLowerCase()
+            .replaceAll(' ', '_')
+            .replaceAll("'", '')
     }
 }

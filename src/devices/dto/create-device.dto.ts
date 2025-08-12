@@ -34,4 +34,9 @@ export class CreateDeviceDto {
     targetMarket: string; // genders
     
 
+    @IsString({ each: true })
+    @IsString()
+    @IsOptional()
+    tags:string[]
+
 }
