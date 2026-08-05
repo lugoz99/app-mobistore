@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query
 import { DevicesService } from './devices.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('devices')
 export class DevicesController {
@@ -20,7 +20,7 @@ export class DevicesController {
 
   @Get(':term')
   findOne(@Param('term',ParseUUIDPipe) term: string) {
-    return this.devicesService.findOne(term);
+    return this.devicesService.findOnePlain(term);
   }
 
   @Patch(':id')

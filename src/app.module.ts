@@ -15,7 +15,7 @@ import { CommonModule } from './common/common.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
-      synchronize:true,
+      synchronize:true, // para actualizar la db
     }),
     DevicesModule,
     CommonModule

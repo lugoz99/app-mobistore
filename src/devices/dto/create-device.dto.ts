@@ -30,13 +30,20 @@ export class CreateDeviceDto {
     @IsArray()
     availableColor: string[];
 
-    @IsIn(['premium','budget','mid-range','flagship'])
+    @IsIn(['premium','budget','mid-range','flagship'], {
+        message: "targetMarket must be: premium, budget, mid-range o flagship',"
+    })
     targetMarket: string; // genders
     
 
-    @IsString({ each: true })
-    @IsString()
+     @IsString({ each: true })
+    @IsArray()
     @IsOptional()
-    tags:string[]
+    accessoriesIncluded?: string[];
+
+    @IsString({ each: true })
+    @IsArray()
+    @IsOptional()
+    images?: string[];
 
 }

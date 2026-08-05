@@ -1,5 +1,5 @@
-import { title } from "process";
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { DeviceImage } from "./device-image.entity";
 
 
 @Entity()
@@ -49,7 +49,16 @@ export class Device {
         array: true,
         default:[]
     })
-    tags:string[]
+    accessoriesIncluded:string[]
+
+
+    // Relationships
+    @OneToMany(
+        ()=>DeviceImage,
+        (devicImage)=>devicImage.device,
+        {cascade:true, eager: true} // eager true -> con find* | load images | pero si uso querybilder no funciona
+    )
+    images?: DeviceImage[]
 
     @BeforeInsert()
     checkModelSlugInsert() {

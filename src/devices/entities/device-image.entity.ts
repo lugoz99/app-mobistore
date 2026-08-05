@@ -1,0 +1,20 @@
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Device } from "./device.entity";
+
+@Entity()
+export class DeviceImage{
+
+  @PrimaryGeneratedColumn()
+  id:number;
+
+  @Column('text')
+  url:string;
+
+
+  @ManyToOne(
+    ()=>Device,
+    (device) => device.images,
+    {onDelete: 'CASCADE'}
+  )
+  device: Device
+}
