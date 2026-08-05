@@ -169,3 +169,11 @@ images: string[];
 documentacon : https://orkhan.gitbook.io/typeorm
 
 UNA QUERY RUNNER VARIAS QUERIES
+
+
+archivos 
+$ npm i -D @types/multer
+
+para los tipos Express.multer.file
+"types": ["node", "express", "multer"],
+npm install uuid

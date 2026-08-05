@@ -11,6 +11,7 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
+    "types": ["node", "express", "multer"],
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
