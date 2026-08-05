@@ -11,6 +11,7 @@ import { Device, DeviceImage } from './entities';
   imports: [
     TypeOrmModule.forFeature([Device,DeviceImage]),
     CommonModule
-  ]
+  ],
+  exports:[DevicesService,TypeOrmModule] // typeormodule para orm
 })
 export class DevicesModule {}

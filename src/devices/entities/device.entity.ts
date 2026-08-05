@@ -2,7 +2,7 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGenerated
 import { DeviceImage } from "./device-image.entity";
 
 
-@Entity()
+@Entity({name:'devices'})
 export class Device { 
 
     @PrimaryGeneratedColumn('uuid')

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DevicesModule } from './devices/devices.module';
 import { CommonModule } from './common/common.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -18,9 +19,8 @@ import { CommonModule } from './common/common.module';
       synchronize:true, // para actualizar la db
     }),
     DevicesModule,
-    CommonModule
-    
-  
+    CommonModule,
+    SeedModule
   ],
 })
 export class AppModule {}
