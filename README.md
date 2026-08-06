@@ -1,73 +1,108 @@
 # Learning NestJS
 
-1. Once we've **created** the project  
-   1.1 **Uninstall** Prettier with:
+Notas de aprendizaje del proyecto: setup inicial, base de datos, relaciones con TypeORM, y el módulo de imágenes de dispositivos con Cloudinary.
 
-   ```bash
-   npm uninstall prettier eslint-plugin-prettier eslint-config-prettier
-   ```
+## Tabla de contenido
 
-2. Postgress with Docker
-   2.1 **docker-compose.yaml**
-   ```
-   npm uninstall prettier eslint-plugin-prettier eslint-config-prettier
-   ```
-   2.2 **Start the database** (e.g., PostgreSQL):
-   ```bash
-   docker-compose up -d
-   ```
-3. Install ORM with Typeorm
-   2.1 **installation**
-   ```
-   npm install --save @nestjs/typeorm typeorm pg
-   ```
-   2.2 **Start the database** (e.g., PostgreSQL):
-   ```bash
-   docker-compose up -d
-   ```
-4. Configure env
-   2.1 **installation**
-
-   ```
-   npm install @nestjs/config
-   ```
-
-   and configure the app.module with
-
-   ```
-   ConfigModule.forRoot()
-
-   ```
-
-   - add .env in .gitignore
-
-5. Install validators
-   2.1 **installation**
-
-   ```
-   npm i class-validator class-transformer
-   npm i uuid
-   ```
-
-6. Notas
-   - si es mongo el id lo genera el, no es necesario ponerlo
-     extends de Document y decorador @schema
-     export SchemaFactory.createClassFor
-     recordar -> modulos -> import
-
-7. Relaciones
-
-En NestJS usando **TypeORM**, la relación 1 a N se define con los decoradores `@OneToMany` (en el lado 1) y `@ManyToOne` (en el lado N).
-
-Por convención, el lado **N** es el que guarda la clave foránea en la tabla de la base de datos, y **TypeORM genera el nombre de la columna automáticamente** combinando el nombre de la propiedad + el nombre de la columna clave primaria.
+1. [Setup inicial del proyecto](#1-setup-inicial-del-proyecto)
+2. [Base de datos con Docker](#2-base-de-datos-con-docker)
+3. [TypeORM](#3-typeorm)
+4. [Variables de entorno](#4-variables-de-entorno)
+5. [Validadores](#5-validadores)
+6. [Notas sueltas](#6-notas-sueltas)
+7. [Relaciones en TypeORM](#7-relaciones-en-typeorm)
+8. [Aplanar relaciones en la respuesta](#8-aplanar-relaciones-en-la-respuesta)
+9. [Archivos y uploads](#9-archivos-y-uploads)
+10. [Módulo de imágenes de dispositivos (Cloudinary)](#10-módulo-de-imágenes-de-dispositivos-cloudinary)
+11. [Referencias](#11-referencias)
 
 ---
 
-### Ejemplo práctico: Un `User` tiene muchas `Photo`s (1 a N)
+## 1. Setup inicial del proyecto
 
-#### 1. Lado N (La entidad que contiene la clave foránea): `Photo`
+Una vez creado el proyecto, desinstalar Prettier:
 
-En el lado "N", usas `@ManyToOne` para definir la relación y `@JoinColumn()` si quieres personalizar el nombre físico de la columna en la base de datos.
+```bash
+npm uninstall prettier eslint-plugin-prettier eslint-config-prettier
+```
+
+---
+
+## 2. Base de datos con Docker
+
+### 2.1 `docker-compose.yaml`
+
+Define el servicio de PostgreSQL en el `docker-compose.yaml` del proyecto.
+
+### 2.2 Levantar la base de datos
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## 3. TypeORM
+
+### 3.1 Instalación
+
+```bash
+npm install --save @nestjs/typeorm typeorm pg
+```
+
+### 3.2 Levantar la base de datos
+
+```bash
+docker-compose up -d
+```
+
+---
+
+## 4. Variables de entorno
+
+### 4.1 Instalación
+
+```bash
+npm install @nestjs/config
+```
+
+### 4.2 Configuración en `app.module.ts`
+
+```typescript
+ConfigModule.forRoot();
+```
+
+> Recuerda agregar `.env` a `.gitignore`.
+
+---
+
+## 5. Validadores
+
+### 5.1 Instalación
+
+```bash
+npm i class-validator class-transformer
+npm i uuid
+```
+
+---
+
+## 6. Notas sueltas
+
+- **MongoDB**: si usas Mongo, el `id` lo genera Mongo automáticamente, no es necesario declararlo. La entidad debe extender `Document` y usar el decorador `@Schema`. El esquema se exporta con `SchemaFactory.createForClass(...)`.
+- Recuerda siempre registrar los módulos nuevos en los `imports` del módulo padre.
+
+---
+
+## 7. Relaciones en TypeORM
+
+En NestJS usando TypeORM, la relación **1 a N** se define con los decoradores `@OneToMany` (en el lado 1) y `@ManyToOne` (en el lado N).
+
+Por convención, el lado **N** es el que guarda la clave foránea en la tabla de la base de datos, y TypeORM genera el nombre de la columna automáticamente combinando el nombre de la propiedad + el nombre de la columna clave primaria.
+
+### 7.1 Ejemplo práctico: un `User` tiene muchas `Photo`s (1 a N)
+
+**Lado N** — la entidad que contiene la clave foránea (`Photo`). Se usa `@ManyToOne` para definir la relación y `@JoinColumn()` si quieres personalizar el nombre físico de la columna:
 
 ```typescript
 import {
@@ -87,16 +122,13 @@ export class Photo {
   @Column()
   url: string;
 
-  // Definición de la relación
   @ManyToOne(() => User, (user) => user.photos)
-  @JoinColumn({ name: 'user_id' }) // <-- OPCIONAL: Define el nombre exacto de la columna FK
+  @JoinColumn({ name: 'user_id' }) // opcional: nombre exacto de la columna FK
   user: User;
 }
 ```
 
-#### 2. Lado 1: `User`
-
-En el lado "1", usas `@OneToMany` apuntando a la propiedad del lado N. Aquí **no** se genera ninguna columna física en la tabla `users`.
+**Lado 1** — no genera ninguna columna física en la tabla `users`, usa `@OneToMany` apuntando a la propiedad del lado N:
 
 ```typescript
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
@@ -110,27 +142,22 @@ export class User {
   @Column()
   name: string;
 
-  // Definición del lado inverso
   @OneToMany(() => Photo, (photo) => photo.user)
   photos: Photo[];
 }
 ```
 
----
+### 7.2 Reglas de nombramiento para la clave foránea (FK)
 
-### Reglas de nombramiento para la Clave Foránea (FK)
+| Configuración                          | Nombre de la columna en la BD | Explicación                                                     |
+| -------------------------------------- | ----------------------------- | --------------------------------------------------------------- |
+| Por defecto (sin `@JoinColumn`)        | `userId`                      | Genera `propiedad` + `Id` en formato camelCase.                 |
+| Con `@JoinColumn({ name: 'user_id' })` | `user_id`                     | Fuerza el nombre a snake_case (recomendado para PostgreSQL).    |
+| Con la propiedad explícita del ID      | `userId` / `user_id`          | Permite acceder directamente al ID sin cargar toda la relación. |
 
-| Configuración                              | Nombre de la columna en la BD | Explicación                                                     |
-| ------------------------------------------ | ----------------------------- | --------------------------------------------------------------- |
-| **Por defecto** (sin `@JoinColumn`)        | `userId`                      | Genera `propiedad` + `Id` en formato _camelCase_.               |
-| **Con `@JoinColumn({ name: 'user_id' })**` | `user_id`                     | Fuerza el nombre a _snake_case_ (recomendado para PostgreSQL).  |
-| **Con la propiedad explícita ID**          | `userId` / `user_id`          | Permite acceder directamente al ID sin cargar toda la relación. |
+### 7.3 Mapeo explícito del ID de la relación (recomendado)
 
----
-
-### Mapeo explícito del ID de la relación (Recomendado)
-
-En proyectos reales de NestJS, es muy común querer acceder directamente al ID de la relación sin tener que cargar toda la entidad relacional. Para ello, defines tanto la columna del ID como la propiedad relacional:
+En proyectos reales es muy común querer acceder directamente al ID de la relación sin cargar toda la entidad relacional. Para eso, defines tanto la columna del ID como la propiedad relacional:
 
 ```typescript
 @Entity('photos')
@@ -144,36 +171,138 @@ export class Photo {
 
   // Objeto de relación
   @ManyToOne(() => User, (user) => user.photos, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' }) // Debe coincidir con name de @Column
+  @JoinColumn({ name: 'user_id' }) // debe coincidir con el name de @Column
   user: User;
 }
 ```
 
-De esta forma:
+Con esto:
 
-- `photo.userId` te devuelve el número del ID (ej: `5`).
-- `photo.user` te devuelve el objeto completo de la entidad `User` (si hiciste `relations: ['user']`).
+- `photo.userId` devuelve el número del ID (ej. `5`).
+- `photo.user` devuelve el objeto completo de `User` (si cargaste `relations: ['user']`).
 
-APLANAR
+---
+
+## 8. Aplanar relaciones en la respuesta
+
+Cuando quieres devolver solo las URLs en vez del arreglo completo de objetos relacionados, usa `@Transform` de `class-transformer`:
+
+```typescript
 import { Transform } from 'class-transformer';
 
 export class ProductResponseDto {
-id: number;
-name: string;
+  id: number;
+  name: string;
 
-// Transforma el arreglo de objetos ProductImage[] a string[]
-@Transform(({ value }) => value?.map((img: { url: string }) => img.url) || [])
-images: string[];
+  // Transforma el arreglo de objetos ProductImage[] a string[]
+  @Transform(({ value }) => value?.map((img: { url: string }) => img.url) || [])
+  images: string[];
 }
+```
 
-documentacon : https://orkhan.gitbook.io/typeorm
+> Nota: una query runner puede ejecutar varias queries en una sola transacción.
 
-UNA QUERY RUNNER VARIAS QUERIES
+---
 
+## 9. Archivos y uploads
 
-archivos 
-$ npm i -D @types/multer
+### 9.1 Tipos para Multer
 
-para los tipos Express.multer.file
-"types": ["node", "express", "multer"],
+```bash
+npm i -D @types/multer
+```
+
+En `tsconfig.json`, para que `Express.Multer.File` sea reconocido:
+
+```json
+"types": ["node", "express", "multer"]
+```
+
+```bash
 npm install uuid
+```
+
+### 9.2 Subida de archivos con Cloudinary
+
+```bash
+npm install cloudinary streamifier
+npm install --save-dev @types/multer
+```
+
+---
+
+## 10. Módulo de imágenes de dispositivos (Cloudinary)
+
+El módulo `devices` soporta dos orígenes distintos de imágenes para un mismo dispositivo:
+
+- **Archivos binarios** subidos por el usuario vía `multipart/form-data` → se suben a Cloudinary.
+- **URLs de texto plano** ya existentes (por ejemplo, imágenes servidas desde una carpeta pública o importadas de otro sistema) → se guardan directamente, sin pasar por Cloudinary.
+
+Ambos orígenes terminan creando una entidad `DeviceImage`, que luego se asocia al `Device`.
+
+### 10.1 Crear un dispositivo (`POST /devices`)
+
+El siguiente diagrama muestra cómo se combinan ambos orígenes de imágenes al crear un dispositivo:
+
+```mermaid
+flowchart TD
+    A[Client sends POST /devices] --> B{What did the client send?}
+
+    B -->|Binary files| C[FilesInterceptor receives files]
+    C --> D[DeviceImagesService.createFromFiles]
+    D --> E[UploadsService uploads to Cloudinary]
+    E --> F[Cloudinary returns secure_url and public_id]
+    F --> G[Create DeviceImage with url and publicId]
+
+    B -->|Text URLs| H[DTO carries images: string in body]
+    H --> I[DeviceImagesService.createFromUrls]
+    I --> J[Create DeviceImage with url only]
+
+    G --> K[Combine all DeviceImage entities]
+    J --> K
+
+    K --> L[Assign images to device.images]
+    L --> M[deviceRepository.save persists everything in cascade]
+    M --> N[Return the created device]
+```
+
+### 10.2 Actualizar un dispositivo (`PATCH /devices/:id`)
+
+Al actualizar, si el cliente envía archivos o URLs nuevas, las imágenes anteriores se eliminan por completo (de Cloudinary y de la base de datos) antes de guardar las nuevas:
+
+```mermaid
+flowchart TD
+    A[Client sends PATCH /devices/:id] --> B[Load device with its current images]
+    B --> C{Did the client send new files or URLs?}
+
+    C -->|No| D[Update only the other device fields]
+    D --> E[Save the device]
+
+    C -->|Yes| F[Delete the old images]
+    F --> G[If they have a publicId, remove them from Cloudinary]
+    G --> H[Remove the old DeviceImage rows from the database]
+
+    H --> I{What kind of new images?}
+    I -->|Files| J[Upload to Cloudinary and create DeviceImage]
+    I -->|Text URLs| K[Create DeviceImage directly with the URL]
+
+    J --> L[Assign the new images to the device]
+    K --> L
+    L --> E
+    E --> M[Return the updated device]
+```
+
+### 10.3 Responsabilidades por archivo
+
+| Archivo                    | Responsabilidad                                                                                                       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `devices.controller.ts`    | Recibe el DTO y los archivos (multipart), delega todo al service.                                                     |
+| `devices.service.ts`       | Orquesta la creación/actualización del `Device`, sin saber los detalles de Cloudinary.                                |
+| `device-images.service.ts` | Sabe construir `DeviceImage` desde archivos (`createFromFiles`) o desde URLs (`createFromUrls`), y también borrarlas. |
+| `uploads.service.ts`       | Único punto que habla directamente con la API de Cloudinary (subir y borrar).                                         |
+
+---
+
+## 11. Referencias
+
+- [Documentación de TypeORM](https://orkhan.gitbook.io/typeorm)

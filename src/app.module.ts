@@ -5,6 +5,9 @@ import { DevicesModule } from './devices/devices.module';
 import { CommonModule } from './common/common.module';
 import { SeedModule } from './seed/seed.module';
 import { FilesModule } from './files/files.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -19,10 +22,14 @@ import { FilesModule } from './files/files.module';
       autoLoadEntities: true,
       synchronize:true, // para actualizar la db
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname,'..','public'),
+    }),
     DevicesModule,
     CommonModule,
     SeedModule,
-    FilesModule
+    FilesModule,
+    UploadsModule
   ],
 })
 export class AppModule {}

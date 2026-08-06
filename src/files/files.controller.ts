@@ -23,7 +23,7 @@ export class FilesController {
     resp.sendFile(path);
   }
 
-  @Post('/device')
+  @Post('device')
   @UseInterceptors(FileInterceptor('file',{
     // limits,
     fileFilter: fileFilter,

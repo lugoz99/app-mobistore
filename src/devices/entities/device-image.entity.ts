@@ -11,6 +11,10 @@ export class DeviceImage{
   @Column('text')
   url:string;
 
+  
+  @Column({nullable:true})
+  publicId: string; // hadle image
+
 
   @ManyToOne(
     ()=>Device,
