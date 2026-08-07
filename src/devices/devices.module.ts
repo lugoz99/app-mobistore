@@ -5,10 +5,11 @@ import { CommonModule } from '../common/common.module';
 import { Device, DeviceImage } from './entities';
 import { UploadsModule } from '../uploads/uploads.module';
 import { DevicesController } from './devices.controller';
+import { DeviceImagesService } from './device-images.service';
 
 @Module({
   controllers: [DevicesController],
-  providers: [DevicesService],
+  providers: [DevicesService,DeviceImagesService],
   imports: [
     TypeOrmModule.forFeature([Device,DeviceImage]),
     UploadsModule,
