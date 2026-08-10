@@ -1,11 +1,12 @@
-import { isArray } from 'class-validator';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Device } from '../../devices/entities';
 
 @Entity('users')
 export class User {
@@ -35,6 +36,9 @@ export class User {
     default: ['user'],
   })
   roles: string[];
+
+  @OneToMany(() => Device, (device) => device.user)
+  devices?: Device[];
 
   @BeforeInsert()
   checkEmailBeforeInsert() {

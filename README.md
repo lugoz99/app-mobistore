@@ -302,6 +302,50 @@ flowchart TD
 | `uploads.service.ts`       | Único punto que habla directamente con la API de Cloudinary (subir y borrar).                                         |
 
 ---
+```mermaid
+flowchart TD
+A[runSeed] --> B[deleteTables]
+
+    B --> C[Delete Devices]
+    B --> D[Delete Users]
+
+    C --> E[insertUsers]
+    D --> E
+
+    E --> F[initialData.users]
+    F --> G[Create User entities]
+    G --> H[Save Users]
+    H --> I[dbUsers array]
+    I --> J[dbUsers 0]
+    J --> K[adminUser]
+
+    K --> L[insertNewDevices]
+    L --> M[initialData.devices]
+    M --> N[Create Devices]
+    N --> O[deviceService.create]
+    K --> O
+    O --> P[Devices saved with User]
+
+    P --> Q[SEED EXECUTED]
+
+    style A fill:#4CAF50,color:#fff
+    style B fill:#F44336,color:#fff
+    style C fill:#F44336,color:#fff
+    style D fill:#F44336,color:#fff
+    style E fill:#2196F3,color:#fff
+    style F fill:#2196F3,color:#fff
+    style G fill:#2196F3,color:#fff
+    style H fill:#2196F3,color:#fff
+    style I fill:#2196F3,color:#fff
+    style J fill:#2196F3,color:#fff
+    style K fill:#9C27B0,color:#fff
+    style L fill:#FF9800,color:#fff
+    style M fill:#FF9800,color:#fff
+    style N fill:#FF9800,color:#fff
+    style O fill:#FF9800,color:#fff
+    style P fill:#FF9800,color:#fff
+    style Q fill:#607D8B,color:#fff
+```
 
 ## 11. Referencias
 
