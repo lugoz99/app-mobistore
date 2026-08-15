@@ -21,7 +21,10 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { Auth, GetUser } from '../auth/decorators';
 import { ValidRoles } from '../auth/interfaces';
 import { User } from '../auth/entities/user.entity';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Device } from './entities';
 
+@ApiTags('devices')
 @Controller('devices')
 // @Auth()
 export class DevicesController {
@@ -30,6 +33,13 @@ export class DevicesController {
   // CREATE - same as your original endpoint, no changes here
   @Post()
   @Auth(ValidRoles.admin)
+  @ApiResponse({
+    status: 201,
+    description: 'Product was created',
+    type: Device,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 403, description: 'Forbidden.Token Related' })
   @UseInterceptors(FilesInterceptor('images', 5))
   create(
     @Body() createDeviceDto: CreateDeviceDto,

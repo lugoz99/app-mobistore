@@ -302,6 +302,7 @@ flowchart TD
 | `uploads.service.ts`       | Único punto que habla directamente con la API de Cloudinary (subir y borrar).                                         |
 
 ---
+
 ```mermaid
 flowchart TD
 A[runSeed] --> B[deleteTables]
@@ -346,6 +347,10 @@ A[runSeed] --> B[deleteTables]
     style P fill:#FF9800,color:#fff
     style Q fill:#607D8B,color:#fff
 ```
+
+## 12. Dcoumetacion
+
+`npm install --save @nestjs/swagger`
 
 ## 11. Referencias
 
