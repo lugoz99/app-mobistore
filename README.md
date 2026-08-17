@@ -348,10 +348,15 @@ A[runSeed] --> B[deleteTables]
     style Q fill:#607D8B,color:#fff
 ```
 
-## 12. Dcoumetacion
+## 11. Dcoumetacion
 
 `npm install --save @nestjs/swagger`
 
-## 11. Referencias
+## 12. Referencias
 
 - [Documentación de TypeORM](https://orkhan.gitbook.io/typeorm)
+
+
+## 12. websocket
+npm i --save @nestjs/websockets @nestjs/platform-socket.io
+npm i socket.io
