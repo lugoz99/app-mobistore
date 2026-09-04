@@ -34,7 +34,6 @@ export class AuthService {
         token: this.getJwtToken({ id: user.id }),
       };
     } catch (error) {
-      console.error({ error });
       this.handleDbErrors(error);
     }
   }
@@ -51,14 +50,16 @@ export class AuthService {
       where: {
         email: email,
       },
-      select: { id: true, email: true, password: true },
+      select: { id: true, email: true, password: true, isActive: true },
     });
 
+    if (!user.isActive) throw new UnauthorizedException('User is inactive');
     if (!user)
       throw new UnauthorizedException('Credential are not valid (email)');
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Credential are not valid (password)');
 
+    delete user.password;
     return {
       ...user,
       token: this.getJwtToken({ id: user.id }),
@@ -73,7 +74,7 @@ export class AuthService {
   }
 
   private handleDbErrors(error: any): never {
-    if (error.code === '2305')
+    if (error.code === '23505')
       throw new BadRequestException(`Error ${error.detail}`);
 
     throw new InternalServerErrorException('Please check server logs');

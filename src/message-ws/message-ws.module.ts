@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { MessagesWsGateway } from './message-ws.gateway';
 import { MessagesWsService } from './message-ws.service';
 import { AuthModule } from '../auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   providers: [MessagesWsGateway, MessagesWsService],
-  imports: [AuthModule],
+  imports: [AuthModule,PassportModule],
 })
 export class MessageWsModule {}

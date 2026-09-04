@@ -46,6 +46,7 @@ export class MessagesWsService {
     return this.connectedClients[socketId].user.fullName;
   }
 
+  // only one instance
   private checkUserConnection(user: User) {
     for (const clientId of Object.keys(this.connectedClients)) {
       const connectedClient = this.connectedClients[clientId];
