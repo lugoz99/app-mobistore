@@ -32,7 +32,8 @@ export class DevicesController {
 
   // CREATE - same as your original endpoint, no changes here
   @Post()
-  @Auth(ValidRoles.admin)
+  // @Auth(ValidRoles.admin)
+  @Auth()
   @ApiResponse({
     status: 201,
     description: 'Product was created',
@@ -69,7 +70,7 @@ export class DevicesController {
 
   // UPDATE - now it can also receive new files to replace old images
   @Patch(':id')
-  @Auth(ValidRoles.admin)
+  // @Auth(ValidRoles.admin)
   @UseInterceptors(FilesInterceptor('images', 5))
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -94,7 +95,7 @@ export class DevicesController {
   }
 
   @Delete(':id')
-  @Auth(ValidRoles.admin)
+  // @Auth(ValidRoles.admin)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.devicesService.remove(id);
   }

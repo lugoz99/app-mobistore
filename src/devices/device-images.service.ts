@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DeviceImage } from './entities/device-image.entity';
 import { UploadsService } from '../uploads/uploads.service';
+import { DeviceImageDto } from './dto/create-device.dto';
 
 @Injectable()
 export class DeviceImagesService {
@@ -14,14 +15,16 @@ export class DeviceImagesService {
 
   // This method creates DeviceImage entities from uploaded files
   // It uploads each file to Cloudinary first
-  async createFromFiles(files: Express.Multer.File[] = []): Promise<DeviceImage[]> {
+  async createFromFiles(
+    files: Express.Multer.File[] = [],
+  ): Promise<DeviceImage[]> {
     if (files.length === 0) return []; // no files, return empty list
 
     const uploadResults = await Promise.all(
-      files.map(file => this.uploadsService.uploadImageToCloudinary(file)),
+      files.map((file) => this.uploadsService.uploadImageToCloudinary(file)),
     );
 
-    return uploadResults.map(result =>
+    return uploadResults.map((result) =>
       this.deviceImageRepository.create({
         url: result.secure_url,
         publicId: result.public_id,
@@ -31,10 +34,12 @@ export class DeviceImagesService {
 
   // This method creates DeviceImage entities from plain text URLs
   // No upload to Cloudinary here, the URL already exists
-  createFromUrls(urls: string[] = []): DeviceImage[] {
-    if (urls.length === 0) return [];
+  createFromUrls(images: DeviceImageDto[] = []): DeviceImage[] {
+    if (images.length === 0) return [];
 
-    return urls.map(url => this.deviceImageRepository.create({ url }));
+    return images.map(({ url, publicId }) =>
+      this.deviceImageRepository.create({ url, publicId }),
+    );
   }
 
   // This method deletes old images: from Cloudinary (if they have a publicId)
@@ -45,8 +50,10 @@ export class DeviceImagesService {
     // delete each image from Cloudinary if it has a publicId
     await Promise.all(
       images
-        .filter(image => image.publicId) // only images uploaded to Cloudinary have publicId
-        .map(image => this.uploadsService.deleteImageFromCloudinary(image.publicId)),
+        .filter((image) => image.publicId) // only images uploaded to Cloudinary have publicId
+        .map((image) =>
+          this.uploadsService.deleteImageFromCloudinary(image.publicId),
+        ),
     );
 
     // delete the rows from the database

@@ -14,7 +14,7 @@ interface SeedDevice {
   availableColor: string[];
   targetMarket: 'premium' | 'budget' | 'mid-range' | 'flagship';
   accessoriesIncluded: string[];
-  images: string[];
+  images: { url: string; publicId?: string }[];
 }
 
 interface SeedData {
@@ -52,20 +52,12 @@ export const initialData: SeedData = {
         '12GB RAM, 256GB almacenamiento, Snapdragon 8 Gen 3, cámara principal 200MP, batería 5000mAh, pantalla 6.8 AMOLED',
       modelSlug: 'samsung_galaxy_s24_ultra',
       unitsInStock: 15,
-      availableColor: [
-        'Titanium Black',
-        'Titanium Gray',
-        'Titanium Violet',
-      ],
+      availableColor: ['Titanium Black', 'Titanium Gray', 'Titanium Violet'],
       targetMarket: 'flagship',
-      accessoriesIncluded: [
-        'cargador',
-        'cable USB-C',
-        'S Pen',
-      ],
+      accessoriesIncluded: ['cargador', 'cable USB-C', 'S Pen'],
       images: [
-        's24_ultra_front_2000.jpg',
-        's24_ultra_back.jpg',
+        { url: 's24_ultra_front_2000.jpg' },
+        { url: 's24_ultra_back.jpg' },
       ],
     },
 
@@ -76,11 +68,7 @@ export const initialData: SeedData = {
         '8GB RAM, 512GB almacenamiento, chip A18 Pro, cámara triple 48MP, batería 4685mAh, pantalla 6.9 Super Retina XDR',
       modelSlug: 'iphone_16_pro_max',
       unitsInStock: 8,
-      availableColor: [
-        'Desert Titanium',
-        'Natural Titanium',
-        'Black Titanium',
-      ],
+      availableColor: ['Desert Titanium', 'Natural Titanium', 'Black Titanium'],
       targetMarket: 'flagship',
       accessoriesIncluded: [
         'cable USB-C a USB-C',
@@ -88,8 +76,8 @@ export const initialData: SeedData = {
         'herramienta para SIM',
       ],
       images: [
-        'iphone16_pm_front_2000.jpg',
-        'iphone16_pm_back.jpg',
+        { url: 'iphone16_pm_front_2000.jpg' },
+        { url: 'iphone16_pm_back.jpg' },
       ],
     },
 
@@ -100,20 +88,12 @@ export const initialData: SeedData = {
         '8GB RAM, 128GB almacenamiento, MediaTek Helio G99-Ultra, cámara principal 108MP, batería 5000mAh, carga rápida 33W',
       modelSlug: 'xiaomi_redmi_note_13',
       unitsInStock: 40,
-      availableColor: [
-        'Midnight Black',
-        'Ocean Teal',
-        'Ice Blue',
-      ],
+      availableColor: ['Midnight Black', 'Ocean Teal', 'Ice Blue'],
       targetMarket: 'mid-range',
-      accessoriesIncluded: [
-        'cargador 33W',
-        'cable USB-C',
-        'case de silicona',
-      ],
+      accessoriesIncluded: ['cargador 33W', 'cable USB-C', 'case de silicona'],
       images: [
-        'redmi_note13_front_2000.jpg',
-        'redmi_note13_back.jpg',
+        { url: 'redmi_note13_front_2000.jpg' },
+        { url: 'redmi_note13_back.jpg' },
       ],
     },
 
@@ -124,21 +104,14 @@ export const initialData: SeedData = {
         '12GB RAM, 128GB almacenamiento, chip Google Tensor G4, cámara principal 50MP, batería 4700mAh, pantalla 6.3 OLED',
       modelSlug: 'google_pixel_9',
       unitsInStock: 20,
-      availableColor: [
-        'Obsidian',
-        'Porcelain',
-        'Wintergreen',
-      ],
+      availableColor: ['Obsidian', 'Porcelain', 'Wintergreen'],
       targetMarket: 'premium',
       accessoriesIncluded: [
         'cable USB-C',
         'adaptador de datos',
         'documentación',
       ],
-      images: [
-        'pixel9_front_2000.jpg',
-        'pixel9_back.jpg',
-      ],
+      images: [{ url: 'pixel9_front_2000.jpg' }, { url: 'pixel9_back.jpg' }],
     },
 
     {
@@ -148,19 +121,12 @@ export const initialData: SeedData = {
         '8GB RAM, 256GB almacenamiento, Snapdragon 6s Gen 3, cámara principal 50MP, batería 5000mAh, pantalla 6.5 IPS',
       modelSlug: 'motorola_moto_g54',
       unitsInStock: 60,
-      availableColor: [
-        'Midnight Blue',
-        'Mint Green',
-      ],
+      availableColor: ['Midnight Blue', 'Mint Green'],
       targetMarket: 'budget',
-      accessoriesIncluded: [
-        'cargador',
-        'cable USB-C',
-        'case transparente',
-      ],
+      accessoriesIncluded: ['cargador', 'cable USB-C', 'case transparente'],
       images: [
-        'moto_g54_front_2000.jpg',
-        'moto_g54_back.jpg',
+        { url: 'moto_g54_front_2000.jpg' },
+        { url: 'moto_g54_back.jpg' },
       ],
     },
 
@@ -171,10 +137,7 @@ export const initialData: SeedData = {
         '16GB RAM, 256GB almacenamiento, Snapdragon 8 Gen 3, cámara principal 50MP Hasselblad, batería 5400mAh, carga 100W',
       modelSlug: 'oneplus_12',
       unitsInStock: 12,
-      availableColor: [
-        'Flowy Emerald',
-        'Silky Black',
-      ],
+      availableColor: ['Flowy Emerald', 'Silky Black'],
       targetMarket: 'flagship',
       accessoriesIncluded: [
         'cargador 100W',
@@ -182,8 +145,8 @@ export const initialData: SeedData = {
         'case de protección',
       ],
       images: [
-        'oneplus12_front_2000.jpg',
-        'oneplus12_back.jpg',
+        { url: 'oneplus12_front_2000.jpg' },
+        { url: 'oneplus12_back.jpg' },
       ],
     },
 
@@ -194,19 +157,12 @@ export const initialData: SeedData = {
         '8GB RAM, 128GB almacenamiento, Exynos 1480, cámara principal 50MP OIS, batería 5000mAh, pantalla 6.6 Super AMOLED',
       modelSlug: 'samsung_galaxy_a55',
       unitsInStock: 35,
-      availableColor: [
-        'Awesome Iceblue',
-        'Awesome Navy',
-        'Awesome Lilac',
-      ],
+      availableColor: ['Awesome Iceblue', 'Awesome Navy', 'Awesome Lilac'],
       targetMarket: 'mid-range',
-      accessoriesIncluded: [
-        'cable USB-C',
-        'documentación',
-      ],
+      accessoriesIncluded: ['cable USB-C', 'documentación'],
       images: [
-        'galaxy_a55_front_2000.jpg',
-        'galaxy_a55_back.jpg',
+        { url: 'galaxy_a55_front_2000.jpg' },
+        { url: 'galaxy_a55_back.jpg' },
       ],
     },
 
@@ -217,19 +173,12 @@ export const initialData: SeedData = {
         '4GB RAM, 64GB almacenamiento, chip A15 Bionic, cámara principal 12MP, batería 2018mAh, pantalla 4.7 Retina HD',
       modelSlug: 'iphone_se_2024',
       unitsInStock: 25,
-      availableColor: [
-        'Midnight',
-        'Starlight',
-        'Red',
-      ],
+      availableColor: ['Midnight', 'Starlight', 'Red'],
       targetMarket: 'budget',
-      accessoriesIncluded: [
-        'cable USB-C a Lightning',
-        'documentación',
-      ],
+      accessoriesIncluded: ['cable USB-C a Lightning', 'documentación'],
       images: [
-        'iphone_se_front_2000.jpg',
-        'iphone_se_back.jpg',
+        { url: 'iphone_se_front_2000.jpg' },
+        { url: 'iphone_se_back.jpg' },
       ],
     },
 
@@ -240,20 +189,10 @@ export const initialData: SeedData = {
         '8GB RAM, 256GB almacenamiento, Snapdragon 778G, cámara principal 50MP, batería 4600mAh, carga rápida 66W',
       modelSlug: 'huawei_nova_12',
       unitsInStock: 18,
-      availableColor: [
-        'Starry Silver',
-        'Emerald Green',
-      ],
+      availableColor: ['Starry Silver', 'Emerald Green'],
       targetMarket: 'mid-range',
-      accessoriesIncluded: [
-        'cargador 66W',
-        'cable USB-C',
-        'case de silicona',
-      ],
-      images: [
-        'nova12_front_2000.jpg',
-        'nova12_back.jpg',
-      ],
+      accessoriesIncluded: ['cargador 66W', 'cable USB-C', 'case de silicona'],
+      images: [{ url: 'nova12_front_2000.jpg' }, { url: 'nova12_back.jpg' }],
     },
 
     {
@@ -263,10 +202,7 @@ export const initialData: SeedData = {
         '16GB RAM, 512GB almacenamiento, Snapdragon 8 Gen 3, cámara principal 50MP, batería 5500mAh, pantalla 6.78 AMOLED 165Hz',
       modelSlug: 'asus_rog_phone_8',
       unitsInStock: 6,
-      availableColor: [
-        'Phantom Black',
-        'Storm White',
-      ],
+      availableColor: ['Phantom Black', 'Storm White'],
       targetMarket: 'flagship',
       accessoriesIncluded: [
         'cargador 65W',
@@ -275,8 +211,8 @@ export const initialData: SeedData = {
         'AeroActive Cooler',
       ],
       images: [
-        'rog_phone8_front_2000.jpg',
-        'rog_phone8_back.jpg',
+        { url: 'rog_phone8_front_2000.jpg' },
+        { url: 'rog_phone8_back.jpg' },
       ],
     },
   ],

@@ -6,17 +6,17 @@ import { Device, DeviceImage } from './entities';
 import { UploadsModule } from '../uploads/uploads.module';
 import { DevicesController } from './devices.controller';
 import { DeviceImagesService } from './device-images.service';
-import { PassportModule } from '@nestjs/passport';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [DevicesController],
-  providers: [DevicesService,DeviceImagesService],
+  providers: [DevicesService, DeviceImagesService],
   imports: [
-    TypeOrmModule.forFeature([Device,DeviceImage]),
+    TypeOrmModule.forFeature([Device, DeviceImage]),
     UploadsModule,
     CommonModule,
-    PassportModule
+    AuthModule,
   ],
-  exports:[DevicesService,TypeOrmModule] // typeormodule para orm
+  exports: [DevicesService, TypeOrmModule], // typeormodule para orm
 })
 export class DevicesModule {}
