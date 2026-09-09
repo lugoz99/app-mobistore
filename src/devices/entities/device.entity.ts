@@ -3,6 +3,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,6 +11,7 @@ import {
 import { DeviceImage } from './device-image.entity';
 import { User } from '../../auth/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity({ name: 'devices' })
 export class Device {
@@ -87,7 +89,7 @@ export class Device {
   // Relationships
   @OneToMany(
     () => DeviceImage,
-    (devicImage) => devicImage.device,
+    (deviceImage) => deviceImage.device,
     { cascade: true, eager: true }, // eager true -> con find* | load images | pero si uso querybilder no funciona
   )
   images?: DeviceImage[];
@@ -95,6 +97,10 @@ export class Device {
   // eager traiga la relacion
   @ManyToOne(() => User, (user) => user.devices, { eager: true })
   user?: User;
+
+  @ManyToOne(() => Category, (category) => category.devices)
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
   @BeforeInsert()
   checkModelSlugInsert() {

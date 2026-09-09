@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -20,22 +15,22 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     const { password, ...userData } = createUserDto;
-    try {
-      const user = this.userRepository.create({
-        ...userData,
-        password: bcrypt.hashSync(password, 10),
-      });
-      await this.userRepository.save(user);
-      delete user.password;
-      return {
-        ...user,
-        token: this.getJwtToken({ id: user.id }),
-      };
-    } catch (error) {
-      this.handleDbErrors(error);
-    }
+
+    const user = this.userRepository.create({
+      ...userData,
+      password: bcrypt.hashSync(password, 10),
+    });
+
+    await this.userRepository.save(user);
+    delete user.password;
+
+    return {
+      ...user,
+      token: this.getJwtToken({ id: user.id }),
+    };
   }
 
   private getJwtToken(payload: JwtPayload) {
@@ -71,12 +66,5 @@ export class AuthService {
       ...user,
       token: this.getJwtToken({ id: user.id }),
     };
-  }
-
-  private handleDbErrors(error: any): never {
-    if (error.code === '23505')
-      throw new BadRequestException(`Error ${error.detail}`);
-
-    throw new InternalServerErrorException('Please check server logs');
   }
 }

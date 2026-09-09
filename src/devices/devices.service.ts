@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Device } from './entities/device.entity';
@@ -14,74 +8,62 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { DeviceImagesService } from './device-images.service';
 import { User } from '../auth/entities/user.entity';
 import { DeviceImage } from './entities';
+import { Category } from '../categories/entities/category.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class DevicesService {
-  // Logger to print errors in the console
-  private readonly logger = new Logger('DevicesService');
-
   constructor(
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
     private readonly deviceImagesService: DeviceImagesService,
     private readonly dataSource: DataSource,
+    private readonly categoryService: CategoriesService,
   ) {}
 
   // CREATE
-  async create(
-    createDeviceDto: CreateDeviceDto,
-    files: Express.Multer.File[],
-    user: User,
-  ) {
-    try {
-      // Separate the images from the other device data
-      const { images = [], ...deviceProperties } = createDeviceDto;
+  async create(createDeviceDto: CreateDeviceDto, user: User) {
+    // Separate the images from the other device data
+    const { images = [], categoryId, ...deviceProperties } = createDeviceDto;
 
-      // Array to store all the new images
-      let finalImagesEntities = [];
+    const imageEntities = this.deviceImagesService.createFromUrls(images);
 
-      // Upload the files to Cloudinary
-      if (files.length > 0) {
-        finalImagesEntities =
-          await this.deviceImagesService.createFromFiles(files);
-      }
+    let category = await this.categoryService.findOne(categoryId);
 
-      // Add the image URLs
-      if (images.length > 0) {
-        const textImageEntities =
-          this.deviceImagesService.createFromUrls(images);
+    // Create the device
+    const device = this.deviceRepository.create({
+      ...deviceProperties,
+      images: imageEntities,
+      user,
+      category: category,
+    });
 
-        finalImagesEntities = [...finalImagesEntities, ...textImageEntities];
-      }
+    // Save the device and its images
+    await this.deviceRepository.save(device);
 
-      // Create the device
-      const device = this.deviceRepository.create({
-        ...deviceProperties,
-        images: finalImagesEntities,
-        user,
-      });
-
-      // Save the device and its images
-      await this.deviceRepository.save(device);
-
-      return device;
-    } catch (error) {
-      this.handleDbExceptions(error);
-    }
+    return device;
   }
 
   // FIND ALL
   async findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+    const { limit = 5, offset = 0 } = paginationDto;
 
     const devices = await this.deviceRepository.find({
       take: limit,
       skip: offset,
       relations: {
         images: true,
+        category: true,
+      },
+      select: {
+        category: {
+          id: true,
+          name: true,
+        },
       },
     });
 
+    // todo: totalPages = Math.ceil(totalRegistros / limit)
     // Return only the image URLs
     return devices.map((device) => ({
       ...device,
@@ -96,6 +78,10 @@ export class DevicesService {
       where: { id: term },
       relations: {
         images: true,
+        category: true,
+      },
+      select: {
+        category: { name: true },
       },
     });
 
@@ -119,13 +105,8 @@ export class DevicesService {
 
   // UPDATE
   // This method updates the device using a transaction
-  async update(
-    id: string,
-    updateDeviceDto: UpdateDeviceDto,
-    files: Express.Multer.File[] = [],
-    user: User,
-  ) {
-    return this.updateWithTransaction(id, updateDeviceDto, files, user);
+  async update(id: string, updateDeviceDto: UpdateDeviceDto, user: User) {
+    return this.updateWithTransaction(id, updateDeviceDto, user);
   }
 
   // UPDATE WITH TRANSACTION
@@ -133,7 +114,6 @@ export class DevicesService {
   public async updateWithTransaction(
     id: string,
     updateDeviceDto: UpdateDeviceDto,
-    files: Express.Multer.File[] = [],
     user: User,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -158,8 +138,7 @@ export class DevicesService {
       }
 
       // Check if the images need to be replaced
-      const wantsToReplaceImages =
-        files.length > 0 || (images && images.length > 0);
+      const wantsToReplaceImages = images !== undefined;
 
       if (wantsToReplaceImages) {
         // Delete the old images from Cloudinary
@@ -170,23 +149,8 @@ export class DevicesService {
           device: { id },
         });
 
-        // Create the new images
-        let newImagesEntities: DeviceImage[] = [];
-
-        // Upload the new files to Cloudinary
-        if (files.length > 0) {
-          const fileImages =
-            await this.deviceImagesService.createFromFiles(files);
-
-          newImagesEntities = [...fileImages];
-        }
-
-        // Add the new image URLs
-        if (images && images.length > 0) {
-          const urlImages = this.deviceImagesService.createFromUrls(images);
-
-          newImagesEntities = [...newImagesEntities, ...urlImages];
-        }
+        const newImagesEntities =
+          this.deviceImagesService.createFromUrls(images);
 
         // Connect each image to the device
         for (const image of newImagesEntities) {
@@ -215,7 +179,7 @@ export class DevicesService {
       // Undo all database changes if something fails
       await queryRunner.rollbackTransaction();
 
-      this.handleDbExceptions(error);
+      throw error;
     } finally {
       // Close the query runner
       await queryRunner.release();
@@ -236,20 +200,6 @@ export class DevicesService {
     return {
       message: `Device with id ${id} was deleted`,
     };
-  }
-
-  // Handle database errors
-  private handleDbExceptions(error: any) {
-    // 23505 means a unique constraint violation in PostgreSQL
-    if (error.code === '23505') {
-      throw new BadRequestException(error.detail);
-    }
-
-    this.logger.error(error);
-
-    throw new InternalServerErrorException(
-      'Unexpected error, check server logs',
-    );
   }
 
   async deleteAllDevices() {

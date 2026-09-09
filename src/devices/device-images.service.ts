@@ -13,27 +13,7 @@ export class DeviceImagesService {
     private readonly uploadsService: UploadsService,
   ) {}
 
-  // This method creates DeviceImage entities from uploaded files
-  // It uploads each file to Cloudinary first
-  async createFromFiles(
-    files: Express.Multer.File[] = [],
-  ): Promise<DeviceImage[]> {
-    if (files.length === 0) return []; // no files, return empty list
-
-    const uploadResults = await Promise.all(
-      files.map((file) => this.uploadsService.uploadImageToCloudinary(file)),
-    );
-
-    return uploadResults.map((result) =>
-      this.deviceImageRepository.create({
-        url: result.secure_url,
-        publicId: result.public_id,
-      }),
-    );
-  }
-
-  // This method creates DeviceImage entities from plain text URLs
-  // No upload to Cloudinary here, the URL already exists
+  // Creates entities from images already uploaded to Cloudinary.
   createFromUrls(images: DeviceImageDto[] = []): DeviceImage[] {
     if (images.length === 0) return [];
 

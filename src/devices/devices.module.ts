@@ -7,6 +7,7 @@ import { UploadsModule } from '../uploads/uploads.module';
 import { DevicesController } from './devices.controller';
 import { DeviceImagesService } from './device-images.service';
 import { AuthModule } from '../auth/auth.module';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   controllers: [DevicesController],
@@ -16,6 +17,7 @@ import { AuthModule } from '../auth/auth.module';
     UploadsModule,
     CommonModule,
     AuthModule,
+    CategoriesModule,
   ],
   exports: [DevicesService, TypeOrmModule], // typeormodule para orm
 })

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DatabaseExceptionFilter } from './common/filters/database-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
@@ -15,6 +16,7 @@ async function bootstrap() {
     }),
   );
 
+  app.useGlobalFilters(new DatabaseExceptionFilter());
   const config = new DocumentBuilder()
     .setTitle('App Technology Store')
     .setDescription('Devices store endponts')

@@ -58,8 +58,13 @@ erDiagram
         DATETIME paymentDate
         DECIMAL amount
         TEXT status
-        TEXT transactionId UK
+        TEXT stripePaymentIntentId
+        TEXT stripeChargeId
         TEXT currency
+        INT attemptNumber
+        TEXT failureCode
+        TEXT failureMessage
+        DATETIME createdAt
         UUID orderId FK
     }
 
@@ -77,7 +82,7 @@ erDiagram
     DEVICE ||--o{ DEVICEIMAGE : "1 a 0..N"
     ORDER ||--|{ ORDERITEM : "1 a 1..N"
     DEVICE ||--o{ ORDERITEM : "1 a 0..N"
-    ORDER ||--|| PAYMENT : "1 a 1"
+    ORDER ||--o{ PAYMENT : "1 a 0..N (múltiples intentos, fallos y reembolsos)"
     CATEGORY ||--o{ DEVICE : "1 a 0..N"
 ```
 
@@ -87,10 +92,10 @@ erDiagram
 
 Define el segmento comercial o gama del dispositivo:
 
-* **`budget` (Gama de entrada / Económico):** Productos accesibles, de bajo costo, enfocados en funciones básicas.
-* **`mid-range` (Gama media):** Balance entre costo y rendimiento; buena calidad a precio moderado.
-* **`premium` (Gama alta):** Productos de costo elevado, mejores materiales y características superiores.
-* **`flagship` (Gama insignia / Top de línea):** El producto estrella de la marca; tecnología más avanzada de la categoría (ejemplo: Samsung Ultra, iPhone Pro Max).
+- **`budget` (Gama de entrada / Económico):** Productos accesibles, de bajo costo, enfocados en funciones básicas.
+- **`mid-range` (Gama media):** Balance entre costo y rendimiento; buena calidad a precio moderado.
+- **`premium` (Gama alta):** Productos de costo elevado, mejores materiales y características superiores.
+- **`flagship` (Gama insignia / Top de línea):** El producto estrella de la marca; tecnología más avanzada de la categoría (ejemplo: Samsung Ultra, iPhone Pro Max).
 
 ---
 
@@ -107,7 +112,27 @@ return devices.map(({ images, ...product }) => ({
 
 ---
 
-## 4. Diagrama de Secuencia: Carga Desacoplada de Archivos
+## 4. Diccionario de Atributos: PAYMENT
+
+| Atributo                | Tipo      | Significado                                                                                                                                                               |
+| ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                    | UUID (PK) | Identificador único de esta fila/intento de pago en tu base de datos.                                                                                                     |
+| `paymentMethod`         | TEXT      | Método usado para pagar (ej. `card`, `oxxo`, `transfer`, según lo que soporte Stripe en tu integración).                                                                  |
+| `paymentDate`           | DATETIME  | Fecha y hora en que el pago se confirmó como exitoso. Queda vacío/null si el intento falló.                                                                               |
+| `amount`                | DECIMAL   | Monto cobrado (o a cobrar) en este intento específico.                                                                                                                    |
+| `status`                | TEXT      | Estado del intento: `pending`, `succeeded`, `failed`, `refunded`.                                                                                                         |
+| `stripePaymentIntentId` | TEXT      | ID del `PaymentIntent` de Stripe (`pi_...`). Agrupa el proceso de cobro de una orden; puede repetirse en varias filas si reintentas confirmaciones sobre el mismo intent. |
+| `stripeChargeId`        | TEXT      | ID del `Charge` de Stripe (`ch_...`). Es único por cada intento real de cobro, incluso si el `PaymentIntent` es el mismo.                                                 |
+| `currency`              | TEXT      | Moneda del cobro (ej. `COP`, `USD`), en formato ISO 4217.                                                                                                                 |
+| `attemptNumber`         | INT       | Número de intento para esa orden (1, 2, 3...), útil para mostrar historial sin contar filas.                                                                              |
+| `failureCode`           | TEXT      | Código de error que devuelve Stripe cuando el pago falla (ej. `card_declined`, `insufficient_funds`, `expired_card`). Null si el pago fue exitoso.                        |
+| `failureMessage`        | TEXT      | Mensaje legible para humanos que explica por qué falló el pago. Null si fue exitoso.                                                                                      |
+| `createdAt`             | DATETIME  | Fecha y hora en que se creó el registro del intento, sin importar si tuvo éxito o no.                                                                                     |
+| `orderId`               | UUID (FK) | Referencia a la orden a la que pertenece este intento de pago.                                                                                                            |
+
+---
+
+## 5. Diagrama de Secuencia: Carga Desacoplada de Archivos
 
 ```mermaid
 sequenceDiagram
@@ -121,7 +146,7 @@ sequenceDiagram
     Note over U,ST: PASO 1: Subida del archivo
     U->>FE: Selecciona "foto.jpg" en el input
     FE->>ST: POST /upload (envía archivo binario)
-    ST-->>FE: 200 OK { url: "[https://cloud.com/foto.jpg](https://cloud.com/foto.jpg)" }
+    ST-->>FE: 200 OK { url: "https://cloud.com/foto.jpg" }
 
     Note over FE: Muestra preview en pantalla<br/>Guarda URL en el estado (useState)
 

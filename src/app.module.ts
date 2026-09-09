@@ -3,13 +3,13 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DevicesModule } from './devices/devices.module';
 import { CommonModule } from './common/common.module';
-import { SeedModule } from './seed/seed.module';
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UploadsModule } from './uploads/uploads.module';
 import { AuthModule } from './auth/auth.module';
 import { MessageWsModule } from './message-ws/message-ws.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -29,11 +29,11 @@ import { MessageWsModule } from './message-ws/message-ws.module';
     }),
     DevicesModule,
     CommonModule,
-    SeedModule,
     FilesModule,
     UploadsModule,
     AuthModule,
-    MessageWsModule
+    MessageWsModule,
+    CategoriesModule
   ],
 })
 export class AppModule {}

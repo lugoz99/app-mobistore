@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  IsUUID,
   MinLength,
   ValidateNested,
 } from 'class-validator';
@@ -61,6 +62,7 @@ export class CreateDeviceDto {
     description: 'Unique device slug',
   })
   @IsString()
+  @IsOptional()
   @MinLength(1)
   modelSlug: string;
 
@@ -109,4 +111,7 @@ export class CreateDeviceDto {
   @Type(() => DeviceImageDto)
   @IsOptional()
   images?: DeviceImageDto[];
+
+  @IsUUID()
+  categoryId: string;
 }
