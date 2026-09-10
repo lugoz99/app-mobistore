@@ -3,10 +3,12 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Device } from '../../devices/entities';
+import { Order } from '../../orders/entities/order.entity';
 
 @Entity('users')
 export class User {
@@ -39,6 +41,9 @@ export class User {
 
   @OneToMany(() => Device, (device) => device.user)
   devices?: Device[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders?: Order[];
 
   @BeforeInsert()
   checkEmailBeforeInsert() {

@@ -158,3 +158,12 @@ sequenceDiagram
     BE-->>FE: 201 Created { id: 1, nombre: "Camisa", ... }
     FE-->>U: Muestra mensaje de éxito y redirige
 ```
+
+| Order `status` | Payment `status` |
+| -------------- | ---------------- |
+| `pending`      | `pending`        |
+| `paid`         | `succeeded`      |
+| `processing`   | `failed`         |
+| `shipped`      | `refunded`       |
+| `delivered`    |                  |
+| `cancelled`    |                  |

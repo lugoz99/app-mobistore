@@ -10,22 +10,25 @@ import { UploadsModule } from './uploads/uploads.module';
 import { AuthModule } from './auth/auth.module';
 import { MessageWsModule } from './message-ws/message-ws.module';
 import { CategoriesModule } from './categories/categories.module';
+import { OrdersModule } from './orders/orders.module';
+import { PaymentModule } from './payment/payment.module';
+import { OrderItemsModule } from './order-items/order-items.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
-      type:'postgres',
+      type: 'postgres',
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
-      database:process.env.DB_NAME,
+      database: process.env.DB_NAME,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       autoLoadEntities: true,
-      synchronize:true, // para actualizar la db
+      synchronize: true, // para actualizar la db
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname,'..','public'),
+      rootPath: join(__dirname, '..', 'public'),
     }),
     DevicesModule,
     CommonModule,
@@ -33,7 +36,10 @@ import { CategoriesModule } from './categories/categories.module';
     UploadsModule,
     AuthModule,
     MessageWsModule,
-    CategoriesModule
+    CategoriesModule,
+    OrdersModule,
+    PaymentModule,
+    OrderItemsModule,
   ],
 })
 export class AppModule {}
