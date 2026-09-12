@@ -12,6 +12,7 @@ import { DeviceImage } from './device-image.entity';
 import { User } from '../../auth/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '../../categories/entities/category.entity';
+import { OrderItem } from '../../order-items/entities/order-item.entity';
 
 @Entity({ name: 'devices' })
 export class Device {
@@ -35,7 +36,7 @@ export class Device {
 
   @ApiProperty({
     example: 0,
-    description: 'Phone price',
+    description: 'Current device price in the catalog',
   })
   @Column('float', {
     default: 0,
@@ -101,6 +102,9 @@ export class Device {
   @ManyToOne(() => Category, (category) => category.devices)
   @JoinColumn({ name: 'categoryId' })
   category: Category;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.device)
+  orderItems: OrderItem[];
 
   @BeforeInsert()
   checkModelSlugInsert() {

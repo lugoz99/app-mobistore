@@ -14,7 +14,7 @@ import {
 } from 'class-validator';
 
 export class DeviceImageDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'https://res.cloudinary.com/example/image/upload/device.jpg',
     description: 'Image URL',
   })
@@ -62,9 +62,9 @@ export class CreateDeviceDto {
     description: 'Unique device slug',
   })
   @IsString()
-  @IsOptional()
   @MinLength(1)
-  modelSlug: string;
+  @IsOptional()
+  modelSlug?: string;
 
   @ApiPropertyOptional({
     example: 5,
