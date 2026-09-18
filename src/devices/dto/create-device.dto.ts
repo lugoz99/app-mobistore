@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsNumber,
@@ -40,6 +41,22 @@ export class CreateDeviceDto {
   @MinLength(1)
   modelName: string;
 
+  @ApiProperty({
+    example: 'IPH-15-128-BLK',
+    description: 'Unique stock keeping unit for the device',
+  })
+  @IsString()
+  @MinLength(1)
+  sku: string;
+
+  @ApiProperty({
+    example: 'Apple',
+    description: 'Device brand name',
+  })
+  @IsString()
+  @MinLength(1)
+  brand: string;
+
   @ApiPropertyOptional({
     example: 2499.99,
     description: 'Device price',
@@ -48,6 +65,14 @@ export class CreateDeviceDto {
   @IsPositive()
   @IsOptional()
   price?: number;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Shows if the device is available in the catalog',
+  })
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 
   @ApiPropertyOptional({
     example: '1TB, 32GB RAM',

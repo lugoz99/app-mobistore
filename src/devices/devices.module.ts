@@ -18,6 +18,7 @@ import { CategoriesModule } from '../categories/categories.module';
     CommonModule,
     AuthModule,
     CategoriesModule,
+    
   ],
   exports: [DevicesService, TypeOrmModule], // typeormodule para orm
 })

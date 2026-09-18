@@ -35,6 +35,21 @@ export class Device {
   modelName: string;
 
   @ApiProperty({
+    example: 'IPH-15-128-BLK',
+    description: 'Unique stock keeping unit for the device',
+    uniqueItems: true,
+  })
+  @Column('text', { unique: true })
+  sku: string;
+
+  @ApiProperty({
+    example: 'Apple',
+    description: 'Device brand name',
+  })
+  @Column('text')
+  brand: string;
+
+  @ApiProperty({
     example: 0,
     description: 'Current device price in the catalog',
   })
@@ -42,6 +57,13 @@ export class Device {
     default: 0,
   })
   price: number;
+
+  @ApiProperty({
+    example: true,
+    description: 'Shows if the device is available in the catalog',
+  })
+  @Column('boolean', { default: true })
+  isActive: boolean;
 
   @ApiProperty()
   @Column('text', {

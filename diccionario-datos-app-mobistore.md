@@ -22,19 +22,22 @@ erDiagram
         TEXT password
         TEXT fullName
         BOOLEAN isActive
-        string_array roles
+        TEXT_ARRAY roles
     }
 
     DEVICE {
         UUID id PK
         TEXT modelName UK
+        TEXT sku UK
+        TEXT brand
         FLOAT price
+        BOOLEAN isActive
         TEXT technicalDetails
         TEXT modelSlug UK
         INT unitsInStock
-        string_array availableColor
+        TEXT_ARRAY availableColor
         TEXT targetMarket
-        string_array accessoriesIncluded
+        TEXT_ARRAY accessoriesIncluded
         UUID userId FK
         UUID categoryId FK
     }
@@ -48,7 +51,7 @@ erDiagram
 
     ORDER {
         UUID id PK
-        DATETIME orderDate
+        DATETIME createdAt
         DECIMAL totalAmount
         CHAR currency
         TEXT status
@@ -67,17 +70,15 @@ erDiagram
 
     PAYMENT {
         UUID id PK
-        TEXT paymentMethod
-        DATETIME paymentDate
         DECIMAL amount
+        CHAR currency
         TEXT status
+        TEXT stripeSessionId UK
         TEXT stripePaymentIntentId
-        TEXT stripeChargeId
-        TEXT currency
-        INT attemptNumber
         TEXT failureCode
         TEXT failureMessage
         DATETIME createdAt
+        DATETIME paidAt
         UUID orderId FK
     }
 
@@ -94,7 +95,7 @@ erDiagram
     DEVICE ||--o{ DEVICEIMAGE : "1 a 0..N"
     ORDER ||--|{ ORDERITEM : "1 a 1..N"
     DEVICE ||--o{ ORDERITEM : "1 a 0..N"
-    ORDER ||--o{ PAYMENT : "1 a 0..N (múltiples intentos, fallos y reembolsos)"
+    ORDER ||--o{ PAYMENT : "1 a 0..N"
     CATEGORY ||--o{ DEVICE : "1 a 0..N"
 ```
 
@@ -159,7 +160,10 @@ return devices.map(({ images, ...product }) => ({
 | --------------------- | --------- | -------------------------------------------------------- |
 | `id`                  | UUID (PK) | Identificador único del device.                          |
 | `modelName`           | TEXT (UK) | Nombre del modelo.                                       |
+| `sku`                 | TEXT (UK) | Código único de inventario del device.                   |
+| `brand`               | TEXT      | Marca del device, por ejemplo `Apple` o `Samsung`.       |
 | `price`               | FLOAT     | Precio actual del catálogo.                              |
+| `isActive`            | BOOLEAN   | Indica si el device aparece en el catálogo.              |
 | `technicalDetails`    | TEXT      | Detalles técnicos opcionales.                            |
 | `modelSlug`           | TEXT (UK) | Nombre usado en URLs.                                    |
 | `unitsInStock`        | INT       | Cantidad disponible.                                     |
@@ -169,7 +173,18 @@ return devices.map(({ images, ...product }) => ({
 | `userId`              | UUID (FK) | Usuario que creó o actualizó el device.                  |
 | `categoryId`          | UUID (FK) | Categoría del device.                                    |
 
-## 6. Diccionario de atributos: DEVICEIMAGE
+## 6. Diccionario de atributos: USER
+
+| Atributo   | Tipo      | Significado                                   |
+| ---------- | --------- | --------------------------------------------- |
+| `id`       | UUID (PK) | Identificador único del usuario.              |
+| `email`    | TEXT (UK) | Correo único, guardado en minúsculas.         |
+| `password` | TEXT      | Contraseña almacenada de forma no retornable. |
+| `fullName` | TEXT      | Nombre completo del usuario.                  |
+| `isActive` | BOOLEAN   | Indica si la cuenta está activa.              |
+| `roles`    | TEXT[]    | Roles asignados; por defecto contiene `user`. |
+
+## 7. Diccionario de atributos: DEVICEIMAGE
 
 | Atributo   | Tipo      | Significado                                       |
 | ---------- | --------- | ------------------------------------------------- |
@@ -178,19 +193,19 @@ return devices.map(({ images, ...product }) => ({
 | `publicId` | TEXT      | Identificador opcional del archivo en Cloudinary. |
 | `deviceId` | UUID (FK) | Device al que pertenece la imagen.                |
 
-## 7. Diccionario de atributos: ORDER
+## 8. Diccionario de atributos: ORDER
 
-| Atributo          | Tipo          | Significado                                          |
-| ----------------- | ------------- | ---------------------------------------------------- |
-| `id`              | UUID (PK)     | Identificador único de la orden.                     |
-| `orderDate`       | DATETIME      | Fecha y hora de creación.                            |
-| `totalAmount`     | DECIMAL(10,2) | Suma de los subtotales de la orden.                  |
-| `currency`        | CHAR(3)       | Moneda ISO 4217, por ejemplo `USD` o `COP`.          |
-| `status`          | ENUM          | Estado actual: `PENDING`, `CONFIRMED` o `CANCELLED`. |
-| `shippingAddress` | TEXT          | Dirección de entrega.                                |
-| `userId`          | UUID (FK)     | Usuario dueño de la orden.                           |
+| Atributo          | Tipo          | Significado                                                          |
+| ----------------- | ------------- | -------------------------------------------------------------------- |
+| `id`              | UUID (PK)     | Identificador único de la orden.                                     |
+| `createdAt`       | DATETIME      | Fecha y hora de creación.                                            |
+| `totalAmount`     | DECIMAL(10,2) | Suma de los subtotales de la orden.                                  |
+| `currency`        | CHAR(3)       | Moneda ISO 4217, por ejemplo `USD` o `COP`.                          |
+| `status`          | ENUM          | Estado actual: `PENDING_PAYMENT`, `PAID`, `CANCELLED` o `FULFILLED`. |
+| `shippingAddress` | TEXT          | Dirección de entrega.                                                |
+| `userId`          | UUID (FK)     | Usuario dueño de la orden.                                           |
 
-## 8. Diccionario de atributos: ORDERITEM
+## 9. Diccionario de atributos: ORDERITEM
 
 | Atributo        | Tipo          | Significado                               |
 | --------------- | ------------- | ----------------------------------------- |
@@ -201,27 +216,25 @@ return devices.map(({ images, ...product }) => ({
 | `orderId`       | UUID (FK)     | Orden a la que pertenece la línea.        |
 | `deviceId`      | UUID (FK)     | Device comprado.                          |
 
-## 9. Diccionario de atributos: PAYMENT
+## 10. Diccionario de atributos: PAYMENT
 
-| Atributo                | Tipo      | Significado                                                                                                                                        |
-| ----------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                    | UUID (PK) | Identificador único de esta fila/intento de pago en tu base de datos.                                                                              |
-| `paymentMethod`         | TEXT      | Método usado para pagar (ej. `card`, `oxxo`, `transfer`, según lo que soporte Stripe en tu integración).                                           |
-| `paymentDate`           | DATETIME  | Fecha y hora en que el pago se confirmó como exitoso. Queda vacío/null si el intento falló.                                                        |
-| `amount`                | DECIMAL   | Monto cobrado (o a cobrar) en este intento específico.                                                                                             |
-| `status`                | ENUM      | Estado real: `PENDING`, `SUCCEEDED`, `FAILED`, `CANCELED` o `REFUNDED`.                                                                            |
-| `stripePaymentIntentId` | TEXT (UK) | ID único del `PaymentIntent` de Stripe (`pi_...`). Identifica el proceso de cobro de una orden.                                                    |
-| `stripeChargeId`        | TEXT      | ID del `Charge` de Stripe (`ch_...`). Es único por cada intento real de cobro, incluso si el `PaymentIntent` es el mismo.                          |
-| `currency`              | TEXT      | Moneda del cobro (ej. `COP`, `USD`), en formato ISO 4217.                                                                                          |
-| `attemptNumber`         | INT       | Número de intento para esa orden (1, 2, 3...), útil para mostrar historial sin contar filas.                                                       |
-| `failureCode`           | TEXT      | Código de error que devuelve Stripe cuando el pago falla (ej. `card_declined`, `insufficient_funds`, `expired_card`). Null si el pago fue exitoso. |
-| `failureMessage`        | TEXT      | Mensaje legible para humanos que explica por qué falló el pago. Null si fue exitoso.                                                               |
-| `createdAt`             | DATETIME  | Fecha y hora en que se creó el registro del intento, sin importar si tuvo éxito o no.                                                              |
-| `orderId`               | UUID (FK) | Referencia a la orden a la que pertenece este intento de pago.                                                                                     |
+| Atributo                | Tipo          | Significado                                                          |
+| ----------------------- | ------------- | -------------------------------------------------------------------- |
+| `id`                    | UUID (PK)     | Identificador único del pago.                                        |
+| `amount`                | DECIMAL(10,2) | Monto de este pago.                                                  |
+| `currency`              | CHAR(3)       | Moneda ISO 4217 del cobro.                                           |
+| `status`                | ENUM          | Estado: `PENDING`, `SUCCEEDED`, `FAILED`, `CANCELED` o `REFUNDED`.   |
+| `stripeSessionId`       | TEXT (UK)     | ID único de la sesión de Checkout de Stripe.                         |
+| `stripePaymentIntentId` | TEXT (UK)     | ID único del `PaymentIntent` de Stripe.                              |
+| `failureCode`           | TEXT          | Código de error de Stripe; queda vacío cuando no hay fallo.          |
+| `failureMessage`        | TEXT          | Mensaje legible del fallo; queda vacío cuando no hay fallo.          |
+| `createdAt`             | DATETIME      | Fecha y hora de creación del registro del pago.                      |
+| `paidAt`                | DATETIME      | Fecha y hora de confirmación; queda vacío si el pago no fue exitoso. |
+| `orderId`               | UUID (FK)     | Orden a la que pertenece el pago.                                    |
 
 ---
 
-## 10. Diccionario de atributos: CATEGORY
+## 11. Diccionario de atributos: CATEGORY
 
 | Atributo    | Tipo      | Significado                                            |
 | ----------- | --------- | ------------------------------------------------------ |
@@ -230,7 +243,7 @@ return devices.map(({ images, ...product }) => ({
 | `createdAt` | DATETIME  | Fecha de creación.                                     |
 | `updateAt`  | DATETIME  | Fecha de la última actualización.                      |
 
-## 11. Flujo de carga de imágenes
+## 12. Flujo de carga de imágenes
 
 ```mermaid
 sequenceDiagram
@@ -257,21 +270,50 @@ sequenceDiagram
     FE-->>U: Muestra mensaje de éxito y redirige
 ```
 
-## 12. Estados permitidos
+## 13. Estados permitidos
 
 | Entity           | Values                                                   |
 | ---------------- | -------------------------------------------------------- |
-| `Order.status`   | `PENDING`, `CONFIRMED`, `CANCELLED`                      |
+| `Order.status`   | `PENDING_PAYMENT`, `PAID`, `CANCELLED`, `FULFILLED`      |
 | `Payment.status` | `PENDING`, `SUCCEEDED`, `FAILED`, `CANCELED`, `REFUNDED` |
 
-Los estados deben coincidir con los valores enum usados por TypeORM. No uses `PAID`, `PROCESSING`, `SHIPPED` o `DELIVERED` hasta agregarlos a la entidad.
+Los estados deben coincidir con los valores enum usados por TypeORM. No uses `CONFIRMED`, `PROCESSING`, `SHIPPED` o `DELIVERED` hasta agregarlos a la entidad.
 
-## 13. DTOs y validación
+## 14. DTOs y validación
 
 Los DTOs validan los datos antes de guardarlos en la base de datos. Validan UUIDs, números positivos, fechas, códigos de moneda, estados y items anidados.
 
 Cuando una orden contiene varios devices, `CreateOrderWithDevidesDto` recibe un arreglo `orderItems`. Cada item contiene `deviceId`, `quantity` y `selectedColor`. El backend crea primero la orden, después crea una fila `OrderItem` por device y asigna el `unitPrice` histórico.
 
-## 14. Nota de actualización de la base de datos
+## 15. Pasarela de pago
 
-La base de datos debe incluir la columna `unitPrice` en `orderItems`. Si la sincronización está desactivada, crea y ejecuta una migración antes de usar el nuevo modelo.
+```mermaid
+flowchart TD
+    U[User] -->|Crea orden| O[Order]
+
+    O --> OI[Order Items]
+    OI -->|Productos, cantidades, precios| O
+
+    U -->|Solicita checkout| P[Payment Service]
+
+    P -->|Busca Order PENDING_PAYMENT| O
+    P -->|Crea Payment PENDING| PAY[Payment]
+
+    PAY -->|paymentId + orderId| S[Stripe Checkout]
+
+    S -->|Usuario paga| STRIPE[Stripe]
+
+    STRIPE -->|Webhook| P
+
+    P -->|Pago exitoso| PAY
+    P -->|Order pasa a PAID| O
+
+    PAY -->|Obtiene usuario de Order| USER[User]
+    USER -->|email| R[Resend]
+    R -->|Confirmación de pago| U
+
+    STRIPE -->|Pago fallido| P
+    P -->|Payment → FAILED| PAY
+    P -->|Order sigue PENDING_PAYMENT| O
+
+```

@@ -3,8 +3,11 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { DatabaseExceptionFilter } from './common/filters/database-exception.filter';
+import * as express from 'express';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Necesitamos conservar el body original de la petición
+  // para poder verificar la firma del webhook.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const logger = new Logger('Bootstrap');
 
   app.setGlobalPrefix('api');
