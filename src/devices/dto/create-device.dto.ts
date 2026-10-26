@@ -41,13 +41,6 @@ export class CreateDeviceDto {
   @MinLength(1)
   modelName: string;
 
-  @ApiProperty({
-    example: 'IPH-15-128-BLK',
-    description: 'Unique stock keeping unit for the device',
-  })
-  @IsString()
-  @MinLength(1)
-  sku: string;
 
   @ApiProperty({
     example: 'Apple',

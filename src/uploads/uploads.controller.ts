@@ -29,6 +29,13 @@ export class UploadsController {
     file: Express.Multer.File,
   ) {
     // el pipe verifica tambien que se proporcione el file
+    console.log('CONTROLLER:', file);
+
+    if (!file) {
+      return {
+        message: 'No llegó ningún archivo',
+      };
+    }
     const result = await this.uploadsService.uploadImageToCloudinary(file);
 
     // Retorno con estructura limpia, semántica y profesional

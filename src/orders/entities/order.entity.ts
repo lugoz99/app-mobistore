@@ -12,7 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { User } from '../../auth/entities/user.entity';
 import { Payment } from '../../payment/entities/payment.entity';
-import { OrderItem } from '../../order-items/entities/order-item.entity';
+import { OrderItem } from './order-item.entity';
 
 export enum OrderStatus {
   PENDING_PAYMENT = 'PENDING_PAYMENT',

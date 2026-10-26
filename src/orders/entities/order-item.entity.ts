@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Order } from '../../orders/entities/order.entity';
+import { Order } from './order.entity';
 import { Device } from '../../devices/entities/device.entity';
 
 @Entity('orderItems')
@@ -23,6 +23,7 @@ export class OrderItem {
   @Column('decimal', { precision: 10, scale: 2 })
   unitPrice: number;
 
+  // todo : validar con el color del device
   @ApiProperty({
     example: 'Black',
     description: 'Color selected by the customer',

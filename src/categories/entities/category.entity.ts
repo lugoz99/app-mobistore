@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -34,6 +33,9 @@ export class Category {
   })
   updateAt: Date;
 
+  @OneToMany(() => Device, (device) => device.category)
+  devices: Device[];
+
   @BeforeInsert()
   checkNameBeforeInsert() {
     this.name = this.name.toLocaleLowerCase().trim();
@@ -43,7 +45,4 @@ export class Category {
   checkNameBeforeUpdate() {
     this.name = this.name.toLocaleLowerCase().trim();
   }
-
-  @OneToMany(() => Device, (device) => device.category)
-  devices: Device[];
 }

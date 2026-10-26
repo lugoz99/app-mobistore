@@ -12,7 +12,6 @@ import { MessageWsModule } from './message-ws/message-ws.module';
 import { CategoriesModule } from './categories/categories.module';
 import { OrdersModule } from './orders/orders.module';
 import { PaymentModule } from './payment/payment.module';
-import { OrderItemsModule } from './order-items/order-items.module';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { OrderItemsModule } from './order-items/order-items.module';
     CategoriesModule,
     OrdersModule,
     PaymentModule,
-    OrderItemsModule,
   ],
 })
 export class AppModule {}

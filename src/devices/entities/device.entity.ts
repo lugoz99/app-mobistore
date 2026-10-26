@@ -12,7 +12,7 @@ import { DeviceImage } from './device-image.entity';
 import { User } from '../../auth/entities/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { Category } from '../../categories/entities/category.entity';
-import { OrderItem } from '../../order-items/entities/order-item.entity';
+import { OrderItem } from '../../orders/entities/order-item.entity';
 
 @Entity({ name: 'devices' })
 export class Device {
@@ -145,5 +145,14 @@ export class Device {
       .toLocaleLowerCase()
       .replaceAll(' ', '_')
       .replaceAll("'", '');
+  }
+
+  @BeforeInsert()
+  generateSku() {
+    const brand = this.brand.toUpperCase().trim();
+    // cualquier espacio | salto linea | tabulacion lo quitamos
+    const model = this.modelName.toUpperCase().replace(/\s+/g, '');
+
+    this.sku = `${brand}-${model}`;
   }
 }

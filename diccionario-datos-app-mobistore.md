@@ -288,29 +288,24 @@ Cuando una orden contiene varios devices, `CreateOrderWithDevidesDto` recibe un 
 ## 15. Pasarela de pago
 
 ```mermaid
-flowchart LR
+flowchart TD
     U[Usuario] -->|Crea orden| O[Order]
     O -->|Contiene| OI[Order Items]
     U -->|Solicita checkout| P[Payment Service]
 
-    subgraph CHECKOUT[Preparacion del checkout]
-        O -->|Orden PENDING_PAYMENT| P
-        P -->|Crea pago pendiente| PAY[Payment PENDING]
-    end
-
+    P -->|Crea pago PENDING| PAY[Payment]
     PAY -->|paymentId y orderId| S[Stripe Checkout]
-    S --> STRIPE[Stripe]
+    S --> STRIPE[Stripe Platform]
+
     STRIPE -->|Webhook| P
 
-    subgraph RESULTADO[Resultado del pago]
-        P -->|Exito| SUCCESS[Payment SUCCEEDED]
-        SUCCESS -->|Actualiza| PAID[Order PAID]
-        P -->|Fallo| FAILED[Payment FAILED]
-        FAILED -->|Conserva estado| WAIT[Order PENDING_PAYMENT]
-    end
-
+    P -->|Pago Exitoso| SUCCESS[Payment SUCCEEDED]
+    SUCCESS -->|Actualiza| PAID[Order PAID]
     PAID -->|Obtiene usuario| USER[User]
-    USER -->|Envia email| R[Resend]
-    R -->|Confirmacion| U
+    USER -->|Envia email Resend| CONFIRM[Confirmacion] --> U
+
+    P -->|Pago Fallido| FAILED[Payment FAILED]
+    FAILED -->|Conserva estado| WAIT[Order PENDING_PAYMENT]
+
 
 ```

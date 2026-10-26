@@ -14,7 +14,6 @@ import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { Auth, GetUser } from '../auth/decorators';
-import { ValidRoles } from '../auth/interfaces';
 import { User } from '../auth/entities/user.entity';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Device } from './entities';

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsInt,
   IsPositive,
@@ -27,9 +28,10 @@ export class CreateOrderDeviceDto {
   deviceId: string;
 }
 
-export class CreateOrderWithDevidesDto extends CreateOrderDto {
+export class CreateOrderWithDevicesDto extends CreateOrderDto {
   @ApiProperty({ type: [CreateOrderDeviceDto] })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => CreateOrderDeviceDto)
   orderItems: CreateOrderDeviceDto[];

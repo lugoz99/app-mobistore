@@ -9,15 +9,9 @@ import {
   Length,
   MinLength,
 } from 'class-validator';
+import { User } from '../../auth/entities/user.entity';
 
 export class CreateOrderDto {
-  @ApiPropertyOptional({
-    example: '2026-09-11T14:30:00.000Z',
-  })
-  @IsDateString()
-  @IsOptional()
-  orderDate?: string;
-
   @ApiProperty({
     example: 'USD',
     description: 'ISO 4217 currency code',
@@ -34,9 +28,5 @@ export class CreateOrderDto {
   @MinLength(1)
   shippingAddress: string;
 
-  @ApiProperty({
-    example: '041afad2-3bdb-4b4b-ac5f-f4f649752e21',
-  })
-  @IsUUID()
-  userId: string;
+  user: User;
 }
